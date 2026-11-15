@@ -205,3 +205,65 @@ export interface AuditLog {
   timestamp: string;
 }
 
+export interface PublicTranslation {
+  id: string;
+  language_code: string;
+  language_name: string;
+  translated_title?: string;
+  translated_body: string;
+  is_verified: boolean;
+}
+
+export interface PublicCampaignItem {
+  id: string;
+  title: string;
+  category: string;
+  objective: string;
+  description?: string;
+  primary_language: string;
+  target_languages: string[];
+  target_channels: string[];
+  recipient_count: number;
+  proposed_delivery_date?: string;
+  created_at: string;
+  languages_available: string[];
+  issuing_authority: string;
+}
+
+export interface PublicCampaignDetailData {
+  id: string;
+  title: string;
+  category: string;
+  objective: string;
+  description?: string;
+  raw_content?: string;
+  primary_language: string;
+  target_languages: string[];
+  target_channels: string[];
+  recipient_count: number;
+  proposed_delivery_date?: string;
+  proposed_delivery_time?: string;
+  created_at: string;
+  updated_at: string;
+  status: string;
+  issuing_authority: string;
+  translations: PublicTranslation[];
+  languages_available: string[];
+}
+
+export interface PublicFeedbackPayload {
+  feedback_text: string;
+  channel_type?: string;
+  citizen_name?: string;
+  citizen_contact?: string;
+  sentiment_rating?: 'HELPFUL' | 'NEUTRAL' | 'NEEDS_IMPROVEMENT';
+}
+
+export interface PublicPortalStats {
+  total_campaigns: number;
+  total_reach: number;
+  supported_languages: string[];
+  active_channels: string[];
+  verified_advisories_count: number;
+}
+

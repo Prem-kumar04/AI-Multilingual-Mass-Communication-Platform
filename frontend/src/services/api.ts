@@ -11,6 +11,10 @@ import {
   Role,
   Permission,
   AuditLog,
+  PublicCampaignItem,
+  PublicCampaignDetailData,
+  PublicFeedbackPayload,
+  PublicPortalStats,
 } from '../types';
 
 export const API_BASE_URL = '/api/v1';
@@ -36,7 +40,14 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (window.location.pathname !== '/login') {
+      const path = window.location.pathname;
+      const isPublicPath =
+        path === '/' ||
+        path === '/public' ||
+        path.startsWith('/campaigns') ||
+        path.startsWith('/info') ||
+        path === '/login';
+      if (!isPublicPath) {
         window.location.href = '/login';
       }
     }
@@ -181,6 +192,33 @@ export const analyticsApi = {
 export const auditApi = {
   getLogs: async (params?: { action?: string; resource_type?: string }): Promise<AuditLog[]> => {
     const res = await apiClient.get('/audit', { params });
+    return res.data;
+  },
+};
+
+export const publicApi = {
+  listCampaigns: async (params?: {
+    category?: string;
+    language?: string;
+    search?: string;
+    limit?: number;
+  }): Promise<PublicCampaignItem[]> => {
+    const res = await apiClient.get('/public/campaigns', { params });
+    return res.data;
+  },
+  getCampaignById: async (id: string): Promise<PublicCampaignDetailData> => {
+    const res = await apiClient.get(`/public/campaigns/${id}`);
+    return res.data;
+  },
+  submitFeedback: async (
+    id: string,
+    data: PublicFeedbackPayload
+  ): Promise<{ success: boolean; message: string; feedback_id: string; detected_sentiment: string }> => {
+    const res = await apiClient.post(`/public/campaigns/${id}/feedback`, data);
+    return res.data;
+  },
+  getStats: async (): Promise<PublicPortalStats> => {
+    const res = await apiClient.get('/public/stats');
     return res.data;
   },
 };

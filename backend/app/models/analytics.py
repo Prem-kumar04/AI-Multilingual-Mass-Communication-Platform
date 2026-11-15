@@ -22,7 +22,7 @@ class Feedback(Base):
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     campaign_id = Column(String(36), ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=False, index=True)
-    contact_id = Column(String(36), ForeignKey("audience_contacts.id", ondelete="CASCADE"), nullable=False, index=True)
+    contact_id = Column(String(36), ForeignKey("audience_contacts.id", ondelete="SET NULL"), nullable=True, index=True)
     channel_type = Column(String(50), nullable=False)
     raw_response = Column(Text, nullable=False)
     created_at = Column(DateTime, default=utc_now)

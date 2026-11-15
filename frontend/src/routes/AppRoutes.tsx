@@ -3,6 +3,11 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { RoleGuard } from './RoleGuard';
 
+// Public Citizen Portal & Campaign Details
+import { PublicLayout } from '../layouts/PublicLayout';
+import { PublicHome } from '../pages/public/PublicHome';
+import { PublicCampaignDetail } from '../pages/public/PublicCampaignDetail';
+
 // Auth
 import { Login } from '../pages/auth/Login';
 
@@ -52,7 +57,14 @@ export const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/" element={getHomeRedirect()} />
+      {/* Public Informational Website & Dedicated Campaign Pages */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<PublicHome />} />
+        <Route path="/public" element={<PublicHome />} />
+        <Route path="/campaigns/:id" element={<PublicCampaignDetail />} />
+        <Route path="/info/:id" element={<PublicCampaignDetail />} />
+      </Route>
+
       <Route path="/login" element={<Login />} />
 
       {/* Admin Protected Routes */}

@@ -19,6 +19,9 @@ An enterprise-grade, full-stack platform designed for public administration, civ
 - **Telemetry & Regional Insights:**
   - Provider-reported delivery confirmation (Delivered, Failed, Queued).
   - Voice of the Community feedback tracking and sentiment classification (Positive, Neutral, Negative).
+- **Public Information Website & Citizen Portal:**
+  - **Homepage (`/` or `/public`):** Citizen-facing portal to browse verified public advisories, search campaigns, filter by category/language, and verify message authenticity.
+  - **Dedicated Campaign Advisory Page (`/campaigns/:id` or `/info/:id`):** Embedded in distributed SMS, WhatsApp, and Email broadcasts. Provides official advisory details, instant 8-language regional translation tabs, emergency helplines, WhatsApp sharing, and citizen feedback submission.
 
 ---
 
@@ -141,3 +144,4 @@ CREATE DATABASE ai_platform;
 ## License
 
 This project is licensed under the MIT License.
+
