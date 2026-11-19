@@ -289,3 +289,4 @@ def get_public_portal_stats(db: Session = Depends(get_db)):
         active_channels=["WhatsApp", "SMS", "Official Email", "Civic Alerts"],
         verified_advisories_count=total_campaigns,
     )
+

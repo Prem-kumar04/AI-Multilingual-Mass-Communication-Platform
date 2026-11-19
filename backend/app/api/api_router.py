@@ -10,11 +10,13 @@ from app.api.v1 import (
     analytics,
     audit,
     public,
+    content_generation,
 )
 
 api_router = APIRouter()
 
 api_router.include_router(public.router, prefix="/public", tags=["Public Citizen Information Website"])
+api_router.include_router(content_generation.router, prefix="/content-generation", tags=["AI Content Generation"])
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["User Management"])
 api_router.include_router(roles.router, prefix="/roles", tags=["Role & Permission Management"])

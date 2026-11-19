@@ -267,3 +267,78 @@ export interface PublicPortalStats {
   verified_advisories_count: number;
 }
 
+export interface ContentVariation {
+  variation_id: number;
+  headline: string;
+  content: string;
+  call_to_action: string;
+  hashtags: string[];
+}
+
+export interface ContentGenerationRequest {
+  campaign_name: string;
+  campaign_objective: string;
+  target_audience: string;
+  product_or_service_details?: string;
+  campaign_type?: string;
+  content_type?: string;
+  preferred_tone?: string;
+  additional_instructions?: string;
+  content_length?: string;
+  target_language?: string;
+  variations_count?: number;
+  campaign_id?: string;
+}
+
+export interface ContentRegenerationRequest {
+  original_content_id?: string;
+  campaign_name: string;
+  campaign_objective: string;
+  target_audience: string;
+  content_type: string;
+  previous_content: string;
+  new_tone?: string;
+  new_length?: string;
+  additional_instructions?: string;
+  target_language?: string;
+  variations_count?: number;
+  campaign_id?: string;
+}
+
+export interface ContentGenerationResponse {
+  request_id: string;
+  campaign_id?: string;
+  campaign_name: string;
+  campaign_type: string;
+  content_type: string;
+  tone: string;
+  target_language: string;
+  headline: string;
+  content: string;
+  call_to_action: string;
+  suggested_hashtags: string[];
+  variations: ContentVariation[];
+  generation_status: string;
+  model_used: string;
+  tokens_used: number;
+  created_at: string;
+  metadata: Record<string, any>;
+}
+
+export interface PromptTemplateItem {
+  key: string;
+  name: string;
+  description: string;
+  default_length: string;
+}
+
+export interface AIServiceConfigStatus {
+  service_initialized: boolean;
+  active_provider: string;
+  model_name: string;
+  supported_content_types: string[];
+  supported_tones: string[];
+  api_key_configured: boolean;
+}
+
+

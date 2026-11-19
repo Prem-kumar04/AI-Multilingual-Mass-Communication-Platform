@@ -15,6 +15,11 @@ import {
   PublicCampaignDetailData,
   PublicFeedbackPayload,
   PublicPortalStats,
+  ContentGenerationRequest,
+  ContentRegenerationRequest,
+  ContentGenerationResponse,
+  PromptTemplateItem,
+  AIServiceConfigStatus,
 } from '../types';
 
 export const API_BASE_URL = '/api/v1';
@@ -222,3 +227,29 @@ export const publicApi = {
     return res.data;
   },
 };
+
+export const contentGenerationApi = {
+  generate: async (data: ContentGenerationRequest): Promise<ContentGenerationResponse> => {
+    const res = await apiClient.post('/content-generation/generate', data);
+    return res.data;
+  },
+  regenerate: async (data: ContentRegenerationRequest): Promise<ContentGenerationResponse> => {
+    const res = await apiClient.post('/content-generation/regenerate', data);
+    return res.data;
+  },
+  getTemplates: async (): Promise<PromptTemplateItem[]> => {
+    const res = await apiClient.get('/content-generation/templates');
+    return res.data;
+  },
+  getConfigStatus: async (): Promise<AIServiceConfigStatus> => {
+    const res = await apiClient.get('/content-generation/config-status');
+    return res.data;
+  },
+  getHistory: async (campaignId?: string): Promise<any[]> => {
+    const res = await apiClient.get('/content-generation/history', {
+      params: campaignId ? { campaign_id: campaignId } : undefined,
+    });
+    return res.data;
+  },
+};
+

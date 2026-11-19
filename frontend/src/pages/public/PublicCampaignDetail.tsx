@@ -492,3 +492,4 @@ export const PublicCampaignDetail: React.FC = () => {
     </div>
   );
 };
+

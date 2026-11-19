@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { campaignsApi, audienceApi, templatesApi } from '../../services/api';
 import { AudienceSegment, MessageTemplate } from '../../types';
+import { AIContentModal } from '../../components/common/AIContentModal';
 import {
   Send,
   Save,
@@ -64,6 +65,14 @@ export const CreateCampaign: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+
+  const handleApplyAIContent = (content: string, headline?: string) => {
+    setRawContent(content);
+    if (!title && headline) {
+      setTitle(headline);
+    }
+  };
 
   useEffect(() => {
     const fetchPrereqs = async () => {
@@ -170,13 +179,21 @@ export const CreateCampaign: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Create Communication Campaign</h1>
           <p className="text-sm text-slate-500 mt-1">
             Configure objectives, demographic segments, multi-channel routes, and message content.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsAIModalOpen(true)}
+          className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all hover:scale-105"
+        >
+          <Sparkles className="w-4 h-4 text-emerald-200 animate-pulse" />
+          <span>✨ AI Content Assistant</span>
+        </button>
       </div>
 
       {error && (
@@ -326,12 +343,22 @@ export const CreateCampaign: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-blue-600" />
+                <FileText className="w-5 h-5 text-emerald-600" />
                 <span>3. Communication Content</span>
               </h2>
-              <span className="text-xs text-slate-400">
-                {rawContent.length} characters
-              </span>
+              <div className="flex items-center space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAIModalOpen(true)}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all hover:shadow-sm"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                  <span>Generate with AI</span>
+                </button>
+                <span className="text-xs text-slate-400">
+                  {rawContent.length} characters
+                </span>
+              </div>
             </div>
 
             <div>
@@ -476,6 +503,15 @@ export const CreateCampaign: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <AIContentModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        campaignName={title}
+        campaignObjective={objective}
+        targetAudience={selectedSegmentIds.length > 0 ? "Targeted Demographic Citizens" : "General Public"}
+        onApplyContent={handleApplyAIContent}
+      />
     </div>
   );
 };
