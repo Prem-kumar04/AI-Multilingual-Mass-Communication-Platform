@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { campaignsApi, audienceApi, templatesApi } from '../../services/api';
 import { AudienceSegment, MessageTemplate } from '../../types';
 import { AIContentModal } from '../../components/common/AIContentModal';
+import { AudiencePersonalizationModal } from '../../components/common/AudiencePersonalizationModal';
+import { ComplianceAuditCard } from '../../components/common/ComplianceAuditCard';
 import {
   Send,
   Save,
@@ -66,8 +68,16 @@ export const CreateCampaign: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isPersonalizeOpen, setIsPersonalizeOpen] = useState(false);
 
   const handleApplyAIContent = (content: string, headline?: string) => {
+    setRawContent(content);
+    if (!title && headline) {
+      setTitle(headline);
+    }
+  };
+
+  const handleApplyPersonalized = (content: string, headline?: string) => {
     setRawContent(content);
     if (!title && headline) {
       setTitle(headline);
@@ -346,17 +356,25 @@ export const CreateCampaign: React.FC = () => {
                 <FileText className="w-5 h-5 text-emerald-600" />
                 <span>3. Communication Content</span>
               </h2>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => setIsAIModalOpen(true)}
                   className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all hover:shadow-sm"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-                  <span>Generate with AI</span>
+                  <span>AI Content</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPersonalizeOpen(true)}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold transition-all hover:shadow-sm"
+                >
+                  <Users className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Audience Optimizer</span>
                 </button>
                 <span className="text-xs text-slate-400">
-                  {rawContent.length} characters
+                  {rawContent.length} chars
                 </span>
               </div>
             </div>
@@ -400,6 +418,14 @@ export const CreateCampaign: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Section 4: Live AI Quality & Policy Compliance Pre-Check */}
+          <ComplianceAuditCard
+            text={rawContent}
+            title={title}
+            category={category}
+            isEmergency={category.toLowerCase().includes('emergency')}
+          />
         </div>
 
         {/* Right Column: Audience & Templates Sidebar */}
@@ -511,6 +537,16 @@ export const CreateCampaign: React.FC = () => {
         campaignObjective={objective}
         targetAudience={selectedSegmentIds.length > 0 ? "Targeted Demographic Citizens" : "General Public"}
         onApplyContent={handleApplyAIContent}
+      />
+
+      <AudiencePersonalizationModal
+        isOpen={isPersonalizeOpen}
+        onClose={() => setIsPersonalizeOpen(false)}
+        initialText={rawContent}
+        initialTitle={title}
+        campaignName={title}
+        campaignObjective={objective}
+        onApplyPersonalized={handleApplyPersonalized}
       />
     </div>
   );

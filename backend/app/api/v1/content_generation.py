@@ -189,3 +189,4 @@ def get_content_generation_history(
         }
         for r in records
     ]
+

@@ -22,6 +22,8 @@ from app.models.campaign import (
 from app.models.content import (
     GeneratedContent,
     CampaignTranslation,
+    CampaignQualityReport,
+    CampaignPersonalizationVariant,
 )
 from app.models.distribution import (
     CommunicationChannel,
@@ -56,6 +58,8 @@ __all__ = [
     "MessageTemplate",
     "GeneratedContent",
     "CampaignTranslation",
+    "CampaignQualityReport",
+    "CampaignPersonalizationVariant",
     "CommunicationChannel",
     "DistributionJob",
     "MessageDelivery",

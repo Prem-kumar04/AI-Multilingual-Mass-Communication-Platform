@@ -4,6 +4,8 @@ import { campaignsApi } from '../../services/api';
 import { Campaign } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
+import { ComplianceAuditCard } from '../../components/common/ComplianceAuditCard';
+import { TranslationReviewPanel } from '../../components/common/TranslationReviewPanel';
 import {
   CheckCircle,
   XCircle,
@@ -207,6 +209,19 @@ export const CampaignReview: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Content Quality & Policy Compliance Audit */}
+      <ComplianceAuditCard campaignId={campaign.id} />
+
+      {/* Multilingual Regional Translations & Review Panel */}
+      <TranslationReviewPanel
+        campaignId={campaign.id}
+        originalText={campaign.raw_content || ''}
+        originalTitle={campaign.title}
+        targetLanguages={campaign.target_languages || []}
+        canReview={true}
+        onTranslationsUpdated={loadCampaign}
+      />
 
       {/* Approve Modal */}
       <Modal isOpen={isApproveOpen} onClose={() => setIsApproveOpen(false)} title="Approve Campaign for Distribution">

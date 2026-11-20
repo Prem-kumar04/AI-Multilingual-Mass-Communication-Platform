@@ -75,3 +75,4 @@ class AIServiceConfigStatus(BaseModel):
     supported_content_types: List[str]
     supported_tones: List[str]
     api_key_configured: bool
+

@@ -341,4 +341,99 @@ export interface AIServiceConfigStatus {
   api_key_configured: boolean;
 }
 
+// ==========================================
+// Milestone 2 Types
+// ==========================================
+
+export interface SupportedLanguageItem {
+  code: string;
+  name: string;
+  native_name: string;
+  script: string;
+  region: string;
+}
+
+export interface TranslationItemResponse {
+  id?: string;
+  language_code: string;
+  language_name: string;
+  original_text: string;
+  translated_title?: string;
+  translated_body: string;
+  cultural_notes?: string;
+  is_verified: boolean;
+  verified_by?: string;
+  reviewer_notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SentimentAnalysisResponse {
+  polarity: 'POSITIVE' | 'NEUTRAL' | 'URGENT_ALERT' | 'NEGATIVE';
+  polarity_score: number;
+  empathy_score: number;
+  clarity_score: number;
+  civic_friendliness_score: number;
+  detected_tone: string;
+  urgency_level: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+  tone_improvement_suggestions: string[];
+}
+
+export interface AudienceSegmentProfile {
+  key: string;
+  name: string;
+  description: string;
+  recommended_tone: string;
+  key_characteristics: string[];
+}
+
+export interface PersonalizationComparisonResponse {
+  target_audience: string;
+  target_audience_label: string;
+  original_title?: string;
+  original_content: string;
+  optimized_title?: string;
+  optimized_content: string;
+  tone_applied: string;
+  changes_made: string[];
+  reading_ease_delta: string;
+  sentiment_before: SentimentAnalysisResponse;
+  sentiment_after: SentimentAnalysisResponse;
+  improvement_notes: string[];
+  created_at?: string;
+}
+
+export interface ComplianceFlag {
+  rule: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  title: string;
+  description: string;
+  snippet?: string;
+  suggestion: string;
+}
+
+export interface ContentQualityReportResponse {
+  id?: string;
+  campaign_id?: string;
+  clarity_score: number;
+  readability_score: number;
+  readability_grade: string;
+  compliance_score: number;
+  compliance_status: 'COMPLIANT' | 'NEEDS_REVIEW' | 'NON_COMPLIANT';
+  sentiment_label: string;
+  sentiment_score: number;
+  flags: ComplianceFlag[];
+  suggestions: string[];
+  checked_at: string;
+}
+
+export interface ComplianceRuleItem {
+  rule_code: string;
+  name: string;
+  description: string;
+  severity_level: string;
+  mandatory_for: string[];
+}
+
+
 

@@ -181,3 +181,4 @@ Requested Modifications:"""
     prompt += f"\n- Provide {max(1, min(variations_count, 4))} alternative revised variation(s)."
     prompt += "\n\nReturn the revised output strictly in the specified JSON schema."
     return prompt
+

@@ -34,6 +34,8 @@ class Campaign(Base):
     campaign_audiences = relationship("CampaignAudience", back_populates="campaign", cascade="all, delete-orphan")
     generated_contents = relationship("GeneratedContent", back_populates="campaign", cascade="all, delete-orphan")
     translations = relationship("CampaignTranslation", back_populates="campaign", cascade="all, delete-orphan")
+    quality_reports = relationship("CampaignQualityReport", back_populates="campaign", cascade="all, delete-orphan")
+    personalization_variants = relationship("CampaignPersonalizationVariant", back_populates="campaign", cascade="all, delete-orphan")
     distribution_jobs = relationship("DistributionJob", back_populates="campaign", cascade="all, delete-orphan")
     feedback_entries = relationship("Feedback", back_populates="campaign", cascade="all, delete-orphan")
 

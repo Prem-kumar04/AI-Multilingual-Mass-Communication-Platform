@@ -20,6 +20,13 @@ import {
   ContentGenerationResponse,
   PromptTemplateItem,
   AIServiceConfigStatus,
+  SupportedLanguageItem,
+  TranslationItemResponse,
+  SentimentAnalysisResponse,
+  AudienceSegmentProfile,
+  PersonalizationComparisonResponse,
+  ContentQualityReportResponse,
+  ComplianceRuleItem,
 } from '../types';
 
 export const API_BASE_URL = '/api/v1';
@@ -252,4 +259,109 @@ export const contentGenerationApi = {
     return res.data;
   },
 };
+
+export const translationsApi = {
+  getLanguages: async (): Promise<SupportedLanguageItem[]> => {
+    const res = await apiClient.get('/translations/languages');
+    return res.data;
+  },
+  translate: async (payload: {
+    text: string;
+    target_language: string;
+    source_language?: string;
+    title?: string;
+    context?: string;
+  }): Promise<TranslationItemResponse> => {
+    const res = await apiClient.post('/translations/translate', payload);
+    return res.data;
+  },
+  generateCampaignTranslations: async (
+    campaignId: string,
+    targetLanguages?: string[]
+  ): Promise<TranslationItemResponse[]> => {
+    const res = await apiClient.post(`/translations/campaign/${campaignId}/generate`, {
+      target_languages: targetLanguages,
+    });
+    return res.data;
+  },
+  getCampaignTranslations: async (campaignId: string): Promise<TranslationItemResponse[]> => {
+    const res = await apiClient.get(`/translations/campaign/${campaignId}`);
+    return res.data;
+  },
+  reviewTranslation: async (
+    translationId: string,
+    payload: {
+      is_verified: boolean;
+      edited_title?: string;
+      edited_body?: string;
+      reviewer_notes?: string;
+    }
+  ): Promise<TranslationItemResponse> => {
+    const res = await apiClient.put(`/translations/${translationId}/review`, payload);
+    return res.data;
+  },
+};
+
+export const optimizationApi = {
+  getSegments: async (): Promise<AudienceSegmentProfile[]> => {
+    const res = await apiClient.get('/optimization/segments');
+    return res.data;
+  },
+  analyzeSentiment: async (text: string, campaignName?: string): Promise<SentimentAnalysisResponse> => {
+    const res = await apiClient.post('/optimization/analyze-sentiment', {
+      text,
+      campaign_name: campaignName,
+    });
+    return res.data;
+  },
+  personalize: async (payload: {
+    text: string;
+    target_audience: string;
+    title?: string;
+    campaign_name?: string;
+    campaign_objective?: string;
+    preferred_tone?: string;
+  }): Promise<PersonalizationComparisonResponse> => {
+    const res = await apiClient.post('/optimization/personalize', payload);
+    return res.data;
+  },
+  personalizeCampaign: async (
+    campaignId: string,
+    targetSegments: string[]
+  ): Promise<PersonalizationComparisonResponse[]> => {
+    const res = await apiClient.post(`/optimization/campaign/${campaignId}/personalize`, {
+      target_segments: targetSegments,
+    });
+    return res.data;
+  },
+  getCampaignVariants: async (campaignId: string): Promise<any[]> => {
+    const res = await apiClient.get(`/optimization/campaign/${campaignId}/variants`);
+    return res.data;
+  },
+};
+
+export const complianceApi = {
+  getRules: async (): Promise<ComplianceRuleItem[]> => {
+    const res = await apiClient.get('/compliance/rules');
+    return res.data;
+  },
+  checkQuality: async (payload: {
+    text: string;
+    title?: string;
+    category?: string;
+    is_emergency?: boolean;
+  }): Promise<ContentQualityReportResponse> => {
+    const res = await apiClient.post('/compliance/check', payload);
+    return res.data;
+  },
+  validateCampaign: async (campaignId: string): Promise<ContentQualityReportResponse> => {
+    const res = await apiClient.post(`/compliance/campaign/${campaignId}/validate`);
+    return res.data;
+  },
+  getCampaignReport: async (campaignId: string): Promise<ContentQualityReportResponse> => {
+    const res = await apiClient.get(`/compliance/campaign/${campaignId}/report`);
+    return res.data;
+  },
+};
+
 
