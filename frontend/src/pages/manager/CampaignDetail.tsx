@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { campaignsApi } from '../../services/api';
 import { Campaign } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
+import { ComplianceAuditCard } from '../../components/common/ComplianceAuditCard';
+import { TranslationReviewPanel } from '../../components/common/TranslationReviewPanel';
+import { AudiencePersonalizationModal } from '../../components/common/AudiencePersonalizationModal';
 import {
   Send,
   ArrowLeft,
@@ -14,6 +17,7 @@ import {
   CheckCircle2,
   FileText,
   Calendar,
+  Sparkles,
 } from 'lucide-react';
 
 export const CampaignDetail: React.FC = () => {
@@ -23,6 +27,7 @@ export const CampaignDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPersonalizeOpen, setIsPersonalizeOpen] = useState(false);
 
   const loadCampaign = async () => {
     if (!id) return;
@@ -101,16 +106,27 @@ export const CampaignDetail: React.FC = () => {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           {(campaign.status === 'DRAFT' || campaign.status === 'REJECTED') && (
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="inline-flex items-center px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition-colors disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5 mr-1.5" />
-              <span>{submitting ? 'Submitting...' : 'Submit for Approval'}</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setIsPersonalizeOpen(true)}
+                className="inline-flex items-center px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-bold transition-all shadow-sm"
+              >
+                <Users className="w-3.5 h-3.5 mr-1.5 text-teal-600" />
+                <span>Audience Optimizer</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="inline-flex items-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow transition-colors disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5 mr-1.5" />
+                <span>{submitting ? 'Submitting...' : 'Submit for Approval'}</span>
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -265,6 +281,36 @@ export const CampaignDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Live AI Quality & Policy Compliance Clearance */}
+      <ComplianceAuditCard campaignId={campaign.id} />
+
+      {/* Multilingual Regional Translations & Review Panel */}
+      <TranslationReviewPanel
+        campaignId={campaign.id}
+        originalText={campaign.raw_content || ''}
+        originalTitle={campaign.title}
+        targetLanguages={campaign.target_languages || []}
+        canReview={false}
+        onTranslationsUpdated={loadCampaign}
+      />
+
+      <AudiencePersonalizationModal
+        isOpen={isPersonalizeOpen}
+        onClose={() => setIsPersonalizeOpen(false)}
+        initialText={campaign.raw_content || ''}
+        initialTitle={campaign.title}
+        campaignName={campaign.title}
+        campaignObjective={campaign.objective}
+        onApplyPersonalized={async (content) => {
+          try {
+            await campaignsApi.update(campaign.id, { raw_content: content });
+            loadCampaign();
+          } catch (e) {
+            console.error('Failed to update content', e);
+          }
+        }}
+      />
     </div>
   );
 };
