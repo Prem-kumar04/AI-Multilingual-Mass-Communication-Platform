@@ -461,7 +461,7 @@ export const CreateCampaign: React.FC = () => {
   const activeTranslation = translations[activeTransLang];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-16 px-2 sm:px-4">
+    <div className="w-full space-y-8 pb-16">
       {/* =========================================================================
           Top Step Indicator Pills (Matching Reference Image Exact Layout)
           1: Campaign details | 2: AI content | 3: Translate | 4: Review & submit

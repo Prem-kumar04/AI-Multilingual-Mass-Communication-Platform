@@ -199,7 +199,7 @@ export const ManagerLayout: React.FC = () => {
           </div>
         </header>
 
-        <main className="p-6 md:p-8 flex-1 max-w-7xl w-full mx-auto">
+        <main className="p-6 md:p-8 flex-1 w-full">
           <Outlet />
         </main>
       </div>
