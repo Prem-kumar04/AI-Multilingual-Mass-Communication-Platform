@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  PlusCircle,
   Users,
   FileText,
   ArrowRight,
@@ -56,13 +55,6 @@ export const ManagerDashboard: React.FC = () => {
             Author public awareness notifications, segment audiences, and submit for editorial verification.
           </p>
         </div>
-        <Link
-          to="/manager/campaigns/create"
-          className="inline-flex items-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition-colors"
-        >
-          <PlusCircle className="w-4 h-4 mr-2" />
-          <span>New Campaign</span>
-        </Link>
       </div>
 
       {/* KPI Cards */}
@@ -129,7 +121,7 @@ export const ManagerDashboard: React.FC = () => {
               {campaigns.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-400">
-                    No campaigns created yet. Click "New Campaign" to begin.
+                    No campaigns created yet. Use Create Campaign in the sidebar to begin.
                   </td>
                 </tr>
               ) : (
