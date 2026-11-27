@@ -44,6 +44,10 @@ class CampaignTranslationGenerateRequest(BaseModel):
     target_languages: Optional[List[str]] = Field(None, description="Optional subset of languages, defaults to campaign target_languages")
 
 
+class SingleLanguageTranslateRequest(BaseModel):
+    language: str = Field(..., description="Target language name or code, e.g. Bengali, Telugu, bn, te")
+
+
 class TranslationReviewRequest(BaseModel):
     is_verified: bool = Field(..., description="Mark translation verified or unverified")
     edited_title: Optional[str] = Field(None, description="Optional reviewer-edited headline")

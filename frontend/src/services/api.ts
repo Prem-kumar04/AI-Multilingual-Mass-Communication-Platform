@@ -375,6 +375,15 @@ export const translationsApi = {
     });
     return res.data;
   },
+  translateSingleLanguage: async (
+    campaignId: string,
+    language: string
+  ): Promise<TranslationItemResponse> => {
+    const res = await apiClient.post(`/translations/campaign/${campaignId}/translate-single`, {
+      language,
+    });
+    return res.data;
+  },
   getCampaignTranslations: async (campaignId: string): Promise<TranslationItemResponse[]> => {
     const res = await apiClient.get(`/translations/campaign/${campaignId}`);
     return res.data;

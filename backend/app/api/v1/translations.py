@@ -10,6 +10,7 @@ from app.schemas.translation import (
     TranslateTextRequest,
     TranslationItemResponse,
     CampaignTranslationGenerateRequest,
+    SingleLanguageTranslateRequest,
     TranslationReviewRequest,
 )
 from app.services.translation_service import translation_service
@@ -73,6 +74,40 @@ def generate_campaign_translations(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Translation generation failed: {str(e)}")
+
+
+@router.post("/campaign/{campaign_id}/translate-single", response_model=TranslationItemResponse)
+def translate_single_campaign_language(
+    campaign_id: str,
+    payload: SingleLanguageTranslateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_any_authenticated),
+):
+    """Translate or re-translate a single specified language for a campaign using Google Translate."""
+    try:
+        result = translation_service.translate_single_language(
+            db=db,
+            campaign_id=campaign_id,
+            target_language=payload.language,
+            user_id=current_user.id,
+        )
+        log_audit_event(
+            db=db,
+            action="TRANSLATION_SINGLE_GENERATED",
+            resource_type="CAMPAIGN_TRANSLATION",
+            user_id=current_user.id,
+            org_id=current_user.org_id,
+            resource_id=campaign_id,
+            payload_after={"language": payload.language, "language_code": result.language_code},
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Translation for {payload.language} failed: {str(e)}",
+        )
 
 
 @router.get("/campaign/{campaign_id}", response_model=List[TranslationItemResponse])

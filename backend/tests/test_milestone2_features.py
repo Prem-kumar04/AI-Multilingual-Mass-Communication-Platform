@@ -135,6 +135,22 @@ def test_campaign_batch_translation_and_review(manager_token, commteam_token, sa
     assert "డెంగ్యూ" in reviewed_data["translated_title"]
 
 
+def test_translate_single_language_endpoint(manager_token, sample_campaign):
+    """Test translating a single specified language (e.g. Bengali) using Google Translate."""
+    campaign_id = sample_campaign["id"]
+    res = client.post(
+        f"/api/v1/translations/campaign/{campaign_id}/translate-single",
+        headers={"Authorization": f"Bearer {manager_token}"},
+        json={"language": "Bengali"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["language_code"] == "bn"
+    assert data["language_name"] == "Bengali"
+    assert data["translated_body"] is not None
+    assert len(data["translated_body"]) > 5
+
+
 # ==========================================
 # Task 2: Audience Personalization & Sentiment Tests
 # ==========================================

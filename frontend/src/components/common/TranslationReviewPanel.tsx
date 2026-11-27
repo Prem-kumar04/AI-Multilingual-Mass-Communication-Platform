@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { translationsApi } from '../../services/api';
 import { TranslationItemResponse, SupportedLanguageItem } from '../../types';
+import { useToast } from '../../context/ToastContext';
 
 interface TranslationReviewPanelProps {
   campaignId: string;
@@ -31,11 +32,13 @@ export const TranslationReviewPanel: React.FC<TranslationReviewPanelProps> = ({
   canReview = true,
   onTranslationsUpdated,
 }) => {
+  const toast = useToast();
   const [translations, setTranslations] = useState<TranslationItemResponse[]>([]);
   const [supportedLanguages, setSupportedLanguages] = useState<SupportedLanguageItem[]>([]);
   const [activeLangCode, setActiveLangCode] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [translatingSingle, setTranslatingSingle] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Editing state for active translation
@@ -78,12 +81,41 @@ export const TranslationReviewPanel: React.FC<TranslationReviewPanelProps> = ({
       if (results.length > 0) {
         setActiveLangCode(results[0].language_code);
       }
+      toast.success('All target languages translated using Google Translate!');
       if (onTranslationsUpdated) onTranslationsUpdated();
     } catch (err: any) {
       console.error('Translation error', err);
       setError(err?.response?.data?.detail || 'Failed to generate translations.');
+      toast.error('Failed to generate translations.');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleTranslateSingleLanguage = async (languageName: string) => {
+    if (!campaignId) return;
+    setTranslatingSingle(true);
+    setError(null);
+    try {
+      const updated = await translationsApi.translateSingleLanguage(campaignId, languageName);
+      setTranslations((prev) => {
+        const idx = prev.findIndex((t) => t.language_code === updated.language_code);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = updated;
+          return next;
+        }
+        return [...prev, updated];
+      });
+      setActiveLangCode(updated.language_code);
+      toast.success(`Complete Google translation generated for ${languageName}!`);
+      if (onTranslationsUpdated) onTranslationsUpdated();
+    } catch (err: any) {
+      console.error('Translation error', err);
+      toast.error(err?.response?.data?.detail || `Failed to translate ${languageName}`);
+      setError(err?.response?.data?.detail || `Failed to translate ${languageName}`);
+    } finally {
+      setTranslatingSingle(false);
     }
   };
 
@@ -235,16 +267,38 @@ export const TranslationReviewPanel: React.FC<TranslationReviewPanelProps> = ({
                   </span>
                 </div>
 
-                {canReview && !isEditing && (
+                <div className="flex items-center space-x-2">
                   <button
                     type="button"
-                    onClick={startEditing}
-                    className="inline-flex items-center space-x-1 text-xs text-slate-600 hover:text-emerald-700 font-semibold"
+                    onClick={() => handleTranslateSingleLanguage(activeTranslation.language_name)}
+                    disabled={translatingSingle}
+                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all shadow-xs disabled:opacity-60"
+                    title="Translate or re-translate this specific language using Google Translate"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit & Verify</span>
+                    {translatingSingle ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+                        <span>Translating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Google Translate</span>
+                      </>
+                    )}
                   </button>
-                )}
+
+                  {canReview && !isEditing && (
+                    <button
+                      type="button"
+                      onClick={startEditing}
+                      className="inline-flex items-center space-x-1 text-xs text-slate-600 hover:text-emerald-700 font-semibold px-2 py-1 rounded-lg hover:bg-slate-100"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Edit & Verify</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Dual View Comparison Grid */}

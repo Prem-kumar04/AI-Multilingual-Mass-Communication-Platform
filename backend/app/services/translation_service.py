@@ -22,6 +22,17 @@ from app.schemas.translation import (
 
 logger = logging.getLogger("translation_service")
 
+# Try to import Google Translate (googletrans) client
+try:
+    from googletrans import Translator
+    HAS_GOOGLETRANS = True
+except ImportError:
+    try:
+        from app.services.googletrans import Translator
+        HAS_GOOGLETRANS = True
+    except ImportError:
+        HAS_GOOGLETRANS = False
+
 # Try to import Google GenAI client
 try:
     from google import genai
@@ -242,7 +253,33 @@ class TranslationService:
                 is_verified=True,
             )
 
-        # Attempt live translation via Google GenAI SDK
+        # 1. Primary Engine: Google Translate (via googletrans) for authentic, full regional translation
+        if HAS_GOOGLETRANS:
+            try:
+                translator = Translator()
+                res_body = translator.translate(text, dest=lang_code, src="auto")
+                translated_body = res_body.text.strip() if res_body and res_body.text else ""
+
+                translated_title = None
+                if title:
+                    res_title = translator.translate(title, dest=lang_code, src="auto")
+                    t_title = res_title.text.strip() if res_title and res_title.text else title
+                    translated_title = f"{t_title} ({native_name})"
+
+                if translated_body:
+                    return TranslationItemResponse(
+                        language_code=lang_code,
+                        language_name=lang_name,
+                        original_text=text,
+                        translated_title=translated_title,
+                        translated_body=translated_body,
+                        cultural_notes=f"Translated into {lang_name} ({native_name}) via Google Translate Neural Engine.",
+                        is_verified=False,
+                    )
+            except Exception as e:
+                logger.warning(f"Google Translate call failed ({e}), falling back to secondary engines.")
+
+        # 2. Secondary Engine: Attempt live translation via Google GenAI SDK
         if self.client:
             try:
                 prompt = f"""You are an expert Indian Linguist and Official Government Communication Translator.
@@ -415,6 +452,78 @@ Body:
             )
 
         return results
+
+    def translate_single_language(
+        self,
+        db: Session,
+        campaign_id: str,
+        target_language: str,
+        user_id: Optional[str] = None,
+    ) -> TranslationItemResponse:
+        """Translate or re-translate a campaign's content into a specific regional language on demand using Google Translate."""
+        campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
+        if not campaign:
+            raise ValueError(f"Campaign with ID '{campaign_id}' not found")
+
+        source_text = campaign.raw_content or campaign.objective or campaign.title
+        lang_code = self.resolve_language_code(target_language)
+
+        translation_item = self.translate_text(
+            text=source_text,
+            title=campaign.title,
+            target_language=target_language,
+            source_language=campaign.primary_language,
+            context=campaign.category,
+        )
+
+        existing = (
+            db.query(CampaignTranslation)
+            .filter(
+                CampaignTranslation.campaign_id == campaign_id,
+                CampaignTranslation.language_code == lang_code,
+            )
+            .first()
+        )
+
+        if existing:
+            existing.original_text = source_text
+            existing.translated_title = translation_item.translated_title
+            existing.translated_body = translation_item.translated_body
+            existing.cultural_notes = translation_item.cultural_notes
+            existing.updated_at = datetime.now(timezone.utc)
+            db_record = existing
+        else:
+            db_record = CampaignTranslation(
+                campaign_id=campaign_id,
+                language_code=lang_code,
+                language_name=translation_item.language_name,
+                original_text=source_text,
+                translated_title=translation_item.translated_title,
+                translated_body=translation_item.translated_body,
+                cultural_notes=translation_item.cultural_notes,
+                is_verified=False,
+                verified_by=None,
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+            )
+            db.add(db_record)
+
+        db.commit()
+        db.refresh(db_record)
+
+        return TranslationItemResponse(
+            id=db_record.id,
+            language_code=db_record.language_code,
+            language_name=db_record.language_name,
+            original_text=source_text,
+            translated_title=db_record.translated_title,
+            translated_body=db_record.translated_body,
+            cultural_notes=db_record.cultural_notes,
+            is_verified=db_record.is_verified,
+            verified_by=db_record.verified_by,
+            created_at=db_record.created_at,
+            updated_at=db_record.updated_at,
+        )
 
     def review_translation(
         self,
