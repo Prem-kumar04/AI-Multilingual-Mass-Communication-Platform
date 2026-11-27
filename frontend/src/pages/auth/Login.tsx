@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   Eye,
   EyeOff,
   ArrowRight,
+  ArrowLeft,
+  Home,
   ShieldCheck,
   Languages,
   Send,
@@ -85,9 +87,19 @@ export const Login: React.FC = () => {
             </span>
           </div>
         </div>
-        <div className="flex items-center space-x-2 text-xs text-slate-500">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Dual-Control Portal Online</span>
+        <div className="flex items-center space-x-3 text-xs">
+          <Link
+            to="/"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 font-semibold text-xs shadow-2xs transition-all hover:scale-[1.02]"
+            title="Return to Public Home Portal"
+          >
+            <Home className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Home Page</span>
+          </Link>
+          <div className="hidden sm:flex items-center space-x-2 text-slate-500">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Dual-Control Portal Online</span>
+          </div>
         </div>
       </div>
 
@@ -247,6 +259,17 @@ export const Login: React.FC = () => {
                       </>
                     )}
                   </button>
+                </div>
+
+                {/* Back to Home Page Option */}
+                <div className="pt-1 text-center">
+                  <Link
+                    to="/"
+                    className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-700 transition-colors py-1"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Home Page</span>
+                  </Link>
                 </div>
               </form>
 
