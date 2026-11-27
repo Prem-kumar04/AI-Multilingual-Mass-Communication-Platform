@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { analyticsApi, campaignsApi, publicApi } from '../../services/api';
 import { ManagerMetrics, Campaign, PublicPortalStats } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import { StatCard } from '../../components/common/StatCard';
 import {
   Layers,
@@ -47,6 +48,7 @@ const STATUSES = [
 ];
 
 export const ManagerReports: React.FC = () => {
+  const toast = useToast();
   const [metrics, setMetrics] = useState<ManagerMetrics | null>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [portalStats, setPortalStats] = useState<PublicPortalStats | null>(null);
@@ -183,6 +185,7 @@ export const ManagerReports: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success('Campaign performance CSV report downloaded.');
   };
 
   const getStatusBadge = (status: string) => {
@@ -256,7 +259,10 @@ export const ManagerReports: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             type="button"
-            onClick={loadData}
+            onClick={() => {
+              loadData();
+              toast.info('Refreshing campaign reports...');
+            }}
             className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
           >
             <RefreshCw className="w-3.5 h-3.5" />

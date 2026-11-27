@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { campaignsApi } from '../../services/api';
 import { Campaign } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import { StatusBadge } from '../../components/common/Badge';
 import { ComplianceAuditCard } from '../../components/common/ComplianceAuditCard';
 import { TranslationReviewPanel } from '../../components/common/TranslationReviewPanel';
@@ -23,6 +24,7 @@ import {
 export const CampaignDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -51,9 +53,10 @@ export const CampaignDetail: React.FC = () => {
     setSubmitting(true);
     try {
       await campaignsApi.submit(id);
+      toast.success('Campaign submitted for editorial approval.');
       loadCampaign();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to submit campaign for approval');
+      toast.error(err.response?.data?.detail || 'Failed to submit campaign for approval');
     } finally {
       setSubmitting(false);
     }

@@ -6,6 +6,7 @@ import {
   optimizationApi,
   translationsApi,
 } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import { ComplianceAuditCard } from '../../components/common/ComplianceAuditCard';
 import {
   Check,
@@ -105,6 +106,7 @@ interface GeneratedTranslation {
 
 export const CreateCampaign: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Wizard Step: 1 = Campaign details, 2 = AI content, 3 = Translate, 4 = Review & submit
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -229,6 +231,7 @@ export const CreateCampaign: React.FC = () => {
         setCallToAction(response.call_to_action || 'Follow official municipal advisories.');
         setHashtags(response.suggested_hashtags || ['#CivicAwareness', '#PublicSafety', '#HealthMission']);
         setAiGeneratedSuccess(true);
+        toast.success('AI campaign content generated successfully.');
       }
     } catch (err: any) {
       console.error('AI content generation error', err);
@@ -241,6 +244,7 @@ export const CreateCampaign: React.FC = () => {
       setCallToAction(fallbackCta);
       setHashtags(['#HealthAdvisory', '#DenguePrevention', '#HyderabadCivicCare']);
       setAiGeneratedSuccess(true);
+      toast.info('Drafted campaign content using civic fallback template.');
     } finally {
       setIsGeneratingAI(false);
     }
@@ -276,6 +280,7 @@ export const CreateCampaign: React.FC = () => {
         toneLabel: res.tone_applied || res.sentiment_after?.detected_tone || 'Reassuring & Actionable',
         readabilityEase: res.reading_ease_delta || 'Accessible (Grade 7)',
       });
+      toast.success(`Message personalized for ${segmentName}.`);
     } catch (err: any) {
       console.error('Personalization error', err);
       // Clean fallback personalization
@@ -305,6 +310,7 @@ export const CreateCampaign: React.FC = () => {
       if (personalizedResult.headline) {
         setHeadline(personalizedResult.headline);
       }
+      toast.info('Personalized adaptation applied to main message.');
     }
   };
 
@@ -383,9 +389,11 @@ export const CreateCampaign: React.FC = () => {
       if (targetLanguages.length > 0 && !targetLanguages.includes(activeTransLang)) {
         setActiveTransLang(targetLanguages[0]);
       }
+      toast.success(`Translated content into ${targetLanguages.length} Indian language(s).`);
     } catch (err: any) {
       console.error('Translation error', err);
       setError('Some translations could not be automatically fetched.');
+      toast.warning('Some translations could not be automatically fetched.');
     } finally {
       setIsTranslating(false);
     }
@@ -447,12 +455,17 @@ export const CreateCampaign: React.FC = () => {
 
       if (submitForReview) {
         await campaignsApi.submit(created.id);
+        toast.success('Campaign created and submitted for editorial approval.');
+      } else {
+        toast.success('Campaign saved as draft.');
       }
 
       navigate(`/manager/campaigns/${created.id}`);
     } catch (err: any) {
       console.error('Campaign creation error', err);
-      setError(err?.response?.data?.detail || 'Failed to save campaign. Please verify connection.');
+      const errMsg = err?.response?.data?.detail || 'Failed to save campaign. Please verify connection.';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

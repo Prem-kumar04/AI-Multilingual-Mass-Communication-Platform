@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { publicApi } from '../../services/api';
 import { PublicCampaignDetailData, PublicTranslation } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import {
   ArrowLeft,
   ShieldCheck,
@@ -24,6 +25,7 @@ import {
 
 export const PublicCampaignDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
   const [campaign, setCampaign] = useState<PublicCampaignDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,9 +106,10 @@ export const PublicCampaignDetail: React.FC = () => {
       });
       setFeedbackSuccess(true);
       setFeedbackText('');
+      toast.success('Thank you! Your feedback has been submitted.');
     } catch (err) {
       console.error(err);
-      alert('Unable to submit feedback at this moment.');
+      toast.error('Unable to submit feedback at this moment.');
     } finally {
       setSubmittingFeedback(false);
     }

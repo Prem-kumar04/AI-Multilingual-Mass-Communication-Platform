@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { campaignsApi } from '../../services/api';
 import { Campaign } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import { ComplianceAuditCard } from '../../components/common/ComplianceAuditCard';
@@ -21,6 +22,7 @@ import {
 export const CampaignReview: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,10 +59,11 @@ export const CampaignReview: React.FC = () => {
     setApproving(true);
     try {
       await campaignsApi.approve(id, approvalNotes);
+      toast.success('Campaign approved for distribution.');
       setIsApproveOpen(false);
       navigate('/comm/approved');
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to approve campaign');
+      toast.error(err.response?.data?.detail || 'Failed to approve campaign');
     } finally {
       setApproving(false);
     }
@@ -77,6 +80,7 @@ export const CampaignReview: React.FC = () => {
     setRejectionError(null);
     try {
       await campaignsApi.reject(id, rejectionReason);
+      toast.info('Campaign rejected and returned to manager.');
       setIsRejectOpen(false);
       navigate('/comm/dashboard');
     } catch (err: any) {

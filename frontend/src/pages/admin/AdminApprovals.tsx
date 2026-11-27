@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { campaignsApi } from '../../services/api';
 import { Campaign } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 export const AdminApprovals: React.FC = () => {
+  const toast = useToast();
   const [pendingCampaigns, setPendingCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
@@ -38,11 +40,12 @@ export const AdminApprovals: React.FC = () => {
     try {
       await campaignsApi.approve(id);
       setActionSuccess('Campaign approved successfully.');
+      toast.success('Campaign approved successfully.');
       setSelectedCampaign(null);
       loadPending();
       setTimeout(() => setActionSuccess(null), 3500);
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Approval failed');
+      toast.error(err.response?.data?.detail || 'Approval failed');
     }
   };
 
@@ -52,11 +55,12 @@ export const AdminApprovals: React.FC = () => {
     try {
       await campaignsApi.reject(id, reason);
       setActionSuccess('Campaign returned to Manager with revision notes.');
+      toast.info('Campaign returned to Manager with revision notes.');
       setSelectedCampaign(null);
       loadPending();
       setTimeout(() => setActionSuccess(null), 3500);
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Rejection failed');
+      toast.error(err.response?.data?.detail || 'Rejection failed');
     }
   };
 

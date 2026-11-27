@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { audienceApi } from '../../services/api';
 import { AudienceContact } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import { Modal } from '../../components/common/Modal';
 import {
   Users2,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 export const AudienceManagement: React.FC = () => {
+  const toast = useToast();
   const [contacts, setContacts] = useState<AudienceContact[]>([]);
   const [search, setSearch] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
@@ -88,9 +90,10 @@ export const AudienceManagement: React.FC = () => {
       setLastName('');
       setPhoneNumber('');
       setEmail('');
+      toast.success('Audience contact added successfully.');
       loadContacts();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to add contact');
+      toast.error(err.response?.data?.detail || 'Failed to add contact');
     } finally {
       setSubmitting(false);
     }
@@ -103,9 +106,10 @@ export const AudienceManagement: React.FC = () => {
     try {
       const summary = await audienceApi.importCsv(csvFile);
       setCsvSummary(summary);
+      toast.success('CSV contacts imported successfully.');
       loadContacts();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to upload CSV');
+      toast.error(err.response?.data?.detail || 'Failed to upload CSV');
     } finally {
       setUploading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { audienceApi } from '../../services/api';
 import { AudienceSegment } from '../../types';
+import { useToast } from '../../context/ToastContext';
 import { Modal } from '../../components/common/Modal';
 import { Filter, Plus, Users, Globe2, MapPin } from 'lucide-react';
 
@@ -29,6 +30,7 @@ const LANGUAGES = [
 ];
 
 export const SegmentBuilder: React.FC = () => {
+  const toast = useToast();
   const [segments, setSegments] = useState<AudienceSegment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,9 +91,10 @@ export const SegmentBuilder: React.FC = () => {
       setDescription('');
       setSelectedStates([]);
       setSelectedLanguages([]);
+      toast.success('Audience segment created successfully.');
       loadSegments();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to create segment');
+      toast.error(err.response?.data?.detail || 'Failed to create segment');
     } finally {
       setSubmitting(false);
     }
