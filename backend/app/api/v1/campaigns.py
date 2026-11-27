@@ -26,6 +26,8 @@ from app.crud.crud_audit import log_audit_event
 from app.core.permissions import (
     require_manager,
     require_communication_team,
+    require_manager_or_admin,
+    require_commteam_or_admin,
     require_any_authenticated,
 )
 
@@ -131,7 +133,7 @@ def list_campaigns(
 def create_new_campaign(
     campaign_in: CampaignCreate,
     db: Session = Depends(get_db),
-    manager_user: User = Depends(require_manager),
+    manager_user: User = Depends(require_manager_or_admin),
 ):
     """Manager endpoint: create a new DRAFT communication campaign."""
     campaign = create_campaign(
@@ -178,7 +180,7 @@ def update_campaign(
     campaign_id: str,
     campaign_in: CampaignUpdate,
     db: Session = Depends(get_db),
-    manager_user: User = Depends(require_manager),
+    manager_user: User = Depends(require_manager_or_admin),
 ):
     """Manager endpoint: update draft or rejected campaign."""
     is_admin = any(r.name.upper() == "ADMIN" for r in manager_user.roles)
@@ -206,7 +208,7 @@ def update_campaign(
 def delete_campaign(
     campaign_id: str,
     db: Session = Depends(get_db),
-    manager_user: User = Depends(require_manager),
+    manager_user: User = Depends(require_manager_or_admin),
 ):
     """Manager endpoint: delete an unsubmitted DRAFT campaign."""
     is_admin = any(r.name.upper() == "ADMIN" for r in manager_user.roles)
@@ -232,7 +234,7 @@ def delete_campaign(
 def submit_campaign(
     campaign_id: str,
     db: Session = Depends(get_db),
-    manager_user: User = Depends(require_manager),
+    manager_user: User = Depends(require_manager_or_admin),
 ):
     """Manager endpoint: submit prepared campaign to the Communication Team for approval."""
     submitted = submit_campaign_for_approval(
@@ -259,7 +261,7 @@ def approve_campaign_endpoint(
     campaign_id: str,
     approval_req: CampaignApprovalRequest,
     db: Session = Depends(get_db),
-    comm_user: User = Depends(require_communication_team),
+    comm_user: User = Depends(require_commteam_or_admin),
 ):
     """Communication Team endpoint: verify and approve campaign for distribution."""
     approved = approve_campaign(
@@ -287,7 +289,7 @@ def reject_campaign_endpoint(
     campaign_id: str,
     reject_req: CampaignRejectionRequest,
     db: Session = Depends(get_db),
-    comm_user: User = Depends(require_communication_team),
+    comm_user: User = Depends(require_commteam_or_admin),
 ):
     """Communication Team endpoint: reject campaign with mandatory feedback, returning it to Manager."""
     rejected = reject_campaign(

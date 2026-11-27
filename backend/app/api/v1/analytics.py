@@ -14,8 +14,8 @@ from app.schemas.analytics import (
 )
 from app.core.permissions import (
     require_admin,
-    require_manager,
-    require_communication_team,
+    require_manager_or_admin,
+    require_commteam_or_admin,
 )
 
 router = APIRouter()
@@ -112,7 +112,7 @@ def get_admin_dashboard_metrics(
 @router.get("/manager", response_model=DashboardStatsManager)
 def get_manager_dashboard_metrics(
     db: Session = Depends(get_db),
-    manager_user: User = Depends(require_manager),
+    manager_user: User = Depends(require_manager_or_admin),
 ):
     """Aggregate campaign performance metrics authored by the current Manager."""
     org_id = manager_user.org_id
@@ -146,7 +146,7 @@ def get_manager_dashboard_metrics(
 @router.get("/commteam", response_model=DashboardStatsCommTeam)
 def get_comm_team_dashboard_metrics(
     db: Session = Depends(get_db),
-    comm_user: User = Depends(require_communication_team),
+    comm_user: User = Depends(require_commteam_or_admin),
 ):
     """Aggregate review, approval, and distribution workload metrics for the Communication Team."""
     org_id = comm_user.org_id
