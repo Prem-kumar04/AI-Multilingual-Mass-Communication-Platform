@@ -110,7 +110,7 @@ export const CampaignReview: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-16 animate-fade-in">
       <button
         onClick={() => navigate('/comm/approvals')}
         className="inline-flex items-center text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
