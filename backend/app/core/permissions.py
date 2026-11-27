@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session, joinedload
 
@@ -8,19 +8,26 @@ from app.core.security import decode_access_token
 from app.database.session import get_db
 from app.models.user import User, Role
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False)
 
 
 def get_current_user(
+    request: Request,
     db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme),
+    token: Optional[str] = Depends(oauth2_scheme),
 ) -> User:
-    """Validate bearer token and resolve current active User."""
+    """Validate bearer token from Authorization header or cookie, and resolve current active User."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials or token expired",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if not token:
+        token = request.cookies.get("access_token")
+
+    if not token:
+        raise credentials_exception
+
     payload = decode_access_token(token)
     if not payload:
         raise credentials_exception

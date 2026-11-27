@@ -4,8 +4,19 @@ from pydantic import BaseModel, EmailStr
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str = "bearer"
     user: "UserLoginResponse"
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: Optional[str] = None
+
+
+class RefreshTokenResponse(BaseModel):
+    access_token: str
+    refresh_token: Optional[str] = None
+    token_type: str = "bearer"
 
 
 class TokenPayload(BaseModel):
